@@ -7,7 +7,7 @@
                     <b>{{ count($errors) }}件のエラーがあります。</b>
                 </p>
                 <ul>
-                    @foreach($errors->all() as $error)
+                    @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
@@ -25,8 +25,12 @@
                     required placeholder="タイトル" value="{{ old('title') }}">
             </div>
             <div class="mb-4">
-                <label class="text-sm mb-2" for="category">カテゴリー</label>
-                <input type="text" name="category">
+                <p class="text-sm mb-2">カテゴリー</p>
+                @foreach ($categories as $category)
+                    <label class="block"><input class="mr-2" type="radio" name="category_id"
+                            value="{{ $category->id }}" @if (old('category_id') == $category->id) checked @endif>{{ $category->name }}</label>
+                @endforeach
+
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm mb-2" for="body">
