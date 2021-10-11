@@ -19,7 +19,7 @@ class PostController extends Controller
      */
     public function index(Post $post)
     {
-        $posts = Post::latest()->get();
+        $posts = Post::with('user')->latest()->Paginate(4);
         return view('posts.index', compact('posts'));
     }
 
@@ -87,6 +87,7 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $categories = Category::all();
+
         return view('posts.edit', compact('post', 'categories'));
     }
 
@@ -115,7 +116,8 @@ class PostController extends Controller
         try {
             // 更新
             $post->save();
-            if ($file) {
+
+            if (!empty($file)) {
                 // 画像アップロード
                 if (!Storage::putFileAs('images/posts', $file, $post->image)) {
                     // 例外を投げてロールバックさせる
@@ -143,9 +145,25 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $post->delete();
+            // 画像削除
+            if (!Storage::delete($post->image_path)) {
+                // 例外を投げてロールバックさせる
+                throw new \Exception('画像ファイルの削除に失敗しました。');
+            }
+            // トランザクション終了(成功)
+            DB::commit();
+        } catch (\Exception $e) {
+            // トランザクション終了(失敗)
+            DB::rollback();
+            return back()->withInput()->withErrors($e->getMessage());
+        }
+        return redirect()->route('posts.index')
+            ->with('notice', '記事を削除しました');
     }
 
     private static function createFileName($file)
