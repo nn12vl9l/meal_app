@@ -19,7 +19,8 @@ class PostController extends Controller
      */
     public function index(Post $post)
     {
-        return view('posts.index');
+        $posts = Post::latest()->get();
+        return view('posts.index', compact('posts'));
     }
 
     /**
@@ -61,7 +62,9 @@ class PostController extends Controller
             DB::rollback();
             return back()->withInput()->withErrors($e->getMessage());
         }
-        return redirect()->route('posts.show', $post);
+        return redirect()
+            ->route('posts.show', $post)
+            ->with('notice','記事を登録しました');
     }
 
     /**
@@ -70,9 +73,9 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-        //
+        return view('posts.show', compact('post'));
     }
 
     /**
