@@ -12,12 +12,12 @@
                             {{ $post->title }}</h2>
                         <h3>{{ $post->user->name }}</h3>
                         <p class="text-sm mb-2 md:text-base font-normal text-gray-600">
-                            <span
-                                class="text-red-400 font-bold">{{ date('Y-m-d H:i:s', strtotime('-1 day')) < $post->created_at ? 'NEW' : '' }}</span>
-                            {{ $post->created_at }}
-                        </p>
+                            記事作成日:{{ $post->created_at }}</p>
+                        <p class="text-sm mb-2 md:text-base font-normal text-gray-800">
+                            {{ $post->date_diff }}</p>
                         <img class="w-full mb-2" src="{{ $post->image_url }}" alt="">
                         <p class="text-gray-700 text-base">{{ Str::limit($post->body, 50) }}</p>
+                        <p class="text-gray-700 font-bold">お気に入り数:{{ $post->likes->count() }}</p>
                     </a>
                 </article>
             @endforeach

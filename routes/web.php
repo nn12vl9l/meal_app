@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\LikeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,6 +27,10 @@ Route::resource('posts', PostController::class)
     ->middleware('auth');
 
 Route::resource('posts', PostController::class)
-    ->only(['show', 'index']);
+    ->only(['index', 'show']);
+
+Route::resource('likes', LikeController::class)
+    ->only(['store', 'destroy'])
+    ->middleware('auth');
 
 require __DIR__.'/auth.php';

@@ -26,17 +26,24 @@ class PostFactory extends Factory
      */
     public function definition()
     {
+        $faker = \Faker\Factory::create('ja_JP');
+
+        // $fileName = date('YmdHis') . '_test.jpg';
+        // $file = UploadedFile::fake()->image($fileName);
+
         $file = $this->faker->image();
         $fileName = basename($file);
 
-        Storage::putFileAs('public/images/posts', $file, $fileName);
-        File::delete($file);
+        File::move($file, storage_path('app/public/images/posts/' . $fileName));
 
+        // Storage::putFileAs('public/images/posts', $file, $fileName);
+        // File::delete($file);
+        
         return [
-            'title' => $this->faker->word(),
+            'title' => $faker->word(),
             'user_id' => Arr::random(Arr::pluck(User::all(), 'id')),
             'category_id' => Arr::random(Arr::pluck(User::all(), 'id')),
-            'body' => $this->faker->paragraph(),
+            'body' => $faker->paragraph(),
             'image' => $fileName,
         ];
     }

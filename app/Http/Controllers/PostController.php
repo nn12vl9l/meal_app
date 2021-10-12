@@ -19,7 +19,7 @@ class PostController extends Controller
      */
     public function index(Post $post)
     {
-        $posts = Post::with('user')->latest()->Paginate(4);
+        $posts = Post::with('user')->with('likes')->latest()->Paginate(4);
         return view('posts.index', compact('posts'));
     }
 
@@ -75,7 +75,16 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return view('posts.show', compact('post'));
+        $post->load('user')->load('likes');
+
+        $liked = 0;
+        foreach ($post->likes as $like) {
+            if($like->user_id == Auth::id()) {
+                $liked = 1;
+                break;
+            }
+        }
+        return view('posts.show', compact('post', 'liked'));
     }
 
     /**
