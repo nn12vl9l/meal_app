@@ -9,6 +9,7 @@ use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Like;
 
 class PostController extends Controller
 {
@@ -55,6 +56,7 @@ class PostController extends Controller
             if (!Storage::putFileAs('images/posts', $file, $post->image)) {
                 throw new \Exception('画像ファイルの保存に失敗しました。');
             }
+            $request->session()->regenerateToken();
             // トランザクション終了(成功)
             DB::commit();
         } catch (\Exception $e) {
@@ -75,16 +77,11 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post->load('user')->load('likes');
-
-        $liked = 0;
-        foreach ($post->likes as $like) {
-            if($like->user_id == Auth::id()) {
-                $liked = 1;
-                break;
-            }
-        }
-        return view('posts.show', compact('post', 'liked'));
+        if (Auth::check()) {
+            $like = Like::with('post')->where('post_id', $post->id)->where('user_id', auth()->user()->id)->first();
+            return view('posts.show', compact('post', 'like'));
+        } else
+            return view('posts.show', compact('post'));
     }
 
     /**
@@ -96,7 +93,6 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $categories = Category::all();
-
         return view('posts.edit', compact('post', 'categories'));
     }
 
@@ -107,16 +103,15 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(PostRequest $request, $id)
+    public function update(PostRequest $request, Post $post)
     {
-        $post = Post::find($id);
         if ($request->user()->cannot('update', $post)) {
             return redirect()->route('posts.show', $post)
                 ->withErrors('自分の記事以外は更新できません');
         }
         $file = $request->file('image');
-        if ($file) {
-            $delete_file_path = $post->image_url;
+        if (!empty($file)) {
+            $delete_file_path = $post->image_path;
             $post->image = self::createFileName($file);
         }
         $post->fill($request->all());
@@ -134,6 +129,7 @@ class PostController extends Controller
                 }
                 if (!Storage::delete($delete_file_path)) {
                     // 例外を投げてロールバックさせる
+                    Storage::delete($post->image_path);
                     throw new \Exception('画像ファイルの削除に失敗しました。');
                 }
             }
@@ -175,7 +171,7 @@ class PostController extends Controller
             ->with('notice', '記事を削除しました');
     }
 
-    private static function createFileName($file)
+    public static function createFileName($file)
     {
         return date('YmdHis') . '_' . $file->getClientOriginalName();
     }

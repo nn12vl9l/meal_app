@@ -9,30 +9,33 @@
                 {{ $post->title }}</h2>
             <h3>{{ $post->user->name }}</h3>
             <p class="text-sm mb-2 md:text-base font-normal text-gray-600">記事作成日:{{ $post->created_at }}
-            <p class="text-sm mb-2 md:text-base font-normal text-gray-800">{{ $post->date_diff }}</p>
+            <p class="text-sm mb-2 md:text-base font-normal text-gray-800">{{ $post->date_diff }} 前に投稿</p>
             </p>
             <img src="{{ $post->image_url }}" alt="" class="mb-4 mx-auto">
             <p class="text-gray-700 text-base">{!! nl2br(e($post->body)) !!}</p>
         </article>
-        @auth
-            @if ($liked)
-                <form action="{{ route('likes.destroy') }}" method="POST" class="mt-2">
-                    @csrf
-                    @method('DELETE')
-                    <input type="hidden" name="user_id" value="{{ Auth::id() }}">
-                    <input type="hidden" name="post_id" value="{{ $post->id }}">
-                    <button class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline block">お気に入り削除</button>
-                </form>
-            @else
-                <form action="{{ route('likes.store') }}" method="POST" class="mt-2">
-                    @csrf
-                    <input type="hidden" name="user_id" value="{{ Auth::id() }}">
-                    <input type="hidden" name="post_id" value="{{ $post->id }}">
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline block">お気に入り</button>
-                </form>
-            @endif
+        <div>
+            @auth
+                @if ($like)
+                    <form action="{{ route('posts.likes.destroy', [$post, $like]) }}" method="POST" class="mt-2">
+                        @csrf
+                        @method('DELETE')
+                        <input type="submit"
+                            class="bg-pink-400 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-40 mr-2"
+                            value="お気に入り削除">
+                        <p class="text-gray-700 font-bold">お気に入り数:{{ $post->likes->count() }}</p>
+                    </form>
+                @else
+                    <form action="{{ route('posts.likes.store', $post) }}" method="POST" class="mt-2">
+                        @csrf
+                        <input type="submit"
+                            class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-40 mr-2"
+                            value="お気に入り">
+                        <p class="text-gray-700 font-bold">お気に入り数:{{ $post->likes->count() }}</p>
+                    </form>
+                @endif
             @endauth
-            <p class="text-gray-700 font-bold">お気に入り数:{{ $post->likes->count() }}</p>
+        </div>
 
         <div class="flex flex-row text-center my-4">
             @can('update', $post)

@@ -23,6 +23,7 @@ class CreateLikesTable extends Migration
                 ->constrained()
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
+            $table->timestamps();
         });
     }
 

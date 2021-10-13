@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Arr;
@@ -28,21 +29,15 @@ class PostFactory extends Factory
     {
         $faker = \Faker\Factory::create('ja_JP');
 
-        // $fileName = date('YmdHis') . '_test.jpg';
-        // $file = UploadedFile::fake()->image($fileName);
-
         $file = $this->faker->image();
         $fileName = basename($file);
 
         File::move($file, storage_path('app/public/images/posts/' . $fileName));
 
-        // Storage::putFileAs('public/images/posts', $file, $fileName);
-        // File::delete($file);
-        
         return [
             'title' => $faker->word(),
             'user_id' => Arr::random(Arr::pluck(User::all(), 'id')),
-            'category_id' => Arr::random(Arr::pluck(User::all(), 'id')),
+            'category_id' => Arr::random(Arr::pluck(Category::all(), 'id')),
             'body' => $faker->paragraph(),
             'image' => $fileName,
         ];

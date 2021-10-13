@@ -18,8 +18,7 @@
                 <p class="text-sm mb-2">カテゴリー</p>
                 @foreach ($categories as $category)
                     <label class="block"><input class="mr-2" type="radio" name="category_id"
-                            value="{{ $category->id }}"
-                            @if (old('category_id') == $category->id) checked @endif>{{ old('category_id', $category->name) }}</label>
+                            value="{{ $category->id }}" @if ($post->category_id == $category->id) checked @endif>{{ $category->name }}</label>
                 @endforeach
             </div>
             <div class="mb-4">

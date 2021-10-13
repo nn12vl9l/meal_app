@@ -14,16 +14,16 @@ class CategorySeeder extends Seeder
      */
     public function run()
     {
-        if(!DB::table('categories')->first()){
-            DB::table('categories')->insert([
-                ['name' => '炭水化物'],
-                ['name' => '脂質'],
-                ['name' => 'タンパク質'],
-                ['name' => 'ミネラル'],
-                ['name' => 'ビタミン'],
-                ['name' => '食物繊維'],
-                ['name' => 'ナトリウム'],
-            ]);
+        $categories = [
+                ['id' => '1', 'name' => '炭水化物'],
+                ['id' => '2', 'name' => '脂質'],
+                ['id' => '3', 'name' => 'タンパク質'],
+                ['id' => '4', 'name' => 'ミネラル'],
+                ['id' => '5', 'name' => 'ビタミン'],
+                ['id' => '6', 'name' => '食物繊維'],
+                ['id' => '7', 'name' => 'ナトリウム'],
+            ];
+            DB::table('categories')->insert($categories);
         }
     }
-}
+

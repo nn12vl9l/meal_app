@@ -11,38 +11,22 @@ class LikeController extends Controller
 {
     public function store(Request $request, Post $post, Like $like)
     {
-        if ($request->user()->cannot('store', $like)) {
-            return redirect()
-                ->route('posts.show', $post);
-        }
-        
-        $like = new Like($request->all());
-
-        try {
-            $like->save();
-            $request->session()->regenerateToken();
-        } catch (\Exception $e) {
-            return back()->withInput()->withErrors($e->getMessage());
-        }
-
+        $like = new Like();
+        $like->post_id = $post->id;
+        $like->user_id = Auth::user()->id;
+        $like->save();
         return redirect()
-            ->route('posts.show', $request->post_id);
+            ->route('posts.show', compact('post', 'like'))
+            ->with('notice', 'お気に入り登録しました');
     }
 
     public function destroy(Request $request, Post $post, Like $like)
     {
-        if ($request->user()->cannot('destroy', $like)) {
-            return redirect()
-                ->route('posts.show', $like);
-        }
-
-        try {
-            $like->delete();
-        } catch (\Exception $e) {
-            return back()->withInput()->withErrors($e->getMessage());
-        }
-
+        $user = Auth::user()->id;
+        $like = Like::where('post_id', $post->id)->where('user_id', $user)->first();
+        $like->delete();
         return redirect()
-            ->route('posts.show', $request->post_id);
+            ->route('posts.show', compact('post', 'like'))
+            ->with('notice', 'お気に入り削除しました');
     }
 }
