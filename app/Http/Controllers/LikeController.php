@@ -22,7 +22,7 @@ class LikeController extends Controller
 
     public function destroy(Request $request, Post $post, Like $like)
     {
-        $user = Auth::user()->id;
+        $user = Auth::user_id()->id;
         $like = Like::where('post_id', $post->id)->where('user_id', $user)->first();
         $like->delete();
         return redirect()
